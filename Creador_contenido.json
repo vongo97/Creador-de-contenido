@@ -1,0 +1,140 @@
+{
+    "name": "Creador de Contenido - Cerebro AI Router",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "content-creator",
+                "options": {}
+            },
+            "id": "1",
+            "name": "Webhook Ingress",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                250,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://cerebro-l5iv.onrender.com/chat",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={\n  \"model\": \"google/gemini-2.0-flash-exp:free\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Actúa como un Analista de Contenido Senior. Genera un BRIEF técnico detallado basado en la idea del usuario y el estilo de marca.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Idea: {{ $json.body.idea }}\\nContexto: {{ $json.body.contexto }}\"\n    }\n  ]\n}",
+                "options": {}
+            },
+            "id": "2",
+            "name": "Cerebro - Analista (Brief)",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                500,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://cerebro-l5iv.onrender.com/chat",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={\n  \"model\": \"google/gemini-2.0-flash-exp:free\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Eres un experto en LinkedIn. Escribe un post viral usando este BRIEF técnico. Usa hooks potentes y formato limpio.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Escribe el post de LinkedIn basado en este brief: {{ $node[\\\"Cerebro - Analista (Brief)\\\"].json.choices[0].message.content }}\"\n    }\n  ]\n}",
+                "options": {}
+            },
+            "id": "3",
+            "name": "Cerebro - Escritor LinkedIn",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                800,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://cerebro-l5iv.onrender.com/chat",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={\n  \"model\": \"google/gemini-2.0-flash-exp:free\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Eres un redactor de Blogs profesional. Escribe un artículo profundo y optimizado para SEO usando este BRIEF.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Escribe el artículo de blog basado en este brief: {{ $node[\\\"Cerebro - Analista (Brief)\\\"].json.choices[0].message.content }}\"\n    }\n  ]\n}",
+                "options": {}
+            },
+            "id": "4",
+            "name": "Cerebro - Escritor Blog",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                800,
+                400
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"status\": \"success\",\n  \"linkedin_post\": \"{{ $node[\\\"Cerebro - Escritor LinkedIn\\\"].json.choices[0].message.content }}\",\n  \"blog_post\": \"{{ $node[\\\"Cerebro - Escritor Blog\\\"].json.choices[0].message.content }}\"\n}",
+                "options": {}
+            },
+            "id": "5",
+            "name": "Response to User",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1100,
+                300
+            ]
+        }
+    ],
+    "connections": {
+        "Webhook Ingress": {
+            "main": [
+                [
+                    {
+                        "node": "Cerebro - Analista (Brief)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Cerebro - Analista (Brief)": {
+            "main": [
+                [
+                    {
+                        "node": "Cerebro - Escritor LinkedIn",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Cerebro - Escritor Blog",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Cerebro - Escritor LinkedIn": {
+            "main": [
+                [
+                    {
+                        "node": "Response to User",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Cerebro - Escritor Blog": {
+            "main": [
+                [
+                    {
+                        "node": "Response to User",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}
