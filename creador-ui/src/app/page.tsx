@@ -47,12 +47,8 @@ export default function Home() {
     };
 
     return (
-        <main className="min-h-screen p-6 md:p-24 flex flex-col items-center">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="w-full max-w-4xl space-y-8"
-            >
+        <main className="min-h-screen p-6 md:p-24 flex flex-col items-center bg-black">
+            <div className="w-full max-w-4xl space-y-8 flex flex-col">
                 {/* Header */}
                 <div className="text-center space-y-4">
                     <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
@@ -149,20 +145,7 @@ export default function Home() {
                         </motion.div>
                     )}
                 </AnimatePresence>
-            </motion.div>
-
-            <style jsx global>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.02);
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
-        }
-      `}</style>
+            </div>
         </main>
     );
 }
