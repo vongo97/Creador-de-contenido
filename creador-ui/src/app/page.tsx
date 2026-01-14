@@ -22,13 +22,18 @@ export default function Home() {
                 body: JSON.stringify({ idea, contexto: context }),
             });
             const data = await response.json();
+            console.log("DATOS RECIBIDOS DE n8n:", data);
 
-            // n8n a menudo envía un array [ { ... } ], lo normalizamos
-            const cleanData = Array.isArray(data) ? data[0] : data;
+            // n8n puede enviar arrays, objetos anidados o el objeto directo
+            const cleanData = Array.isArray(data) ? data[0] : (data.body || data);
+
+            // Buscamos el contenido en múltiples campos posibles por si n8n los renombró
+            const linkedin = cleanData.linkedin_post || cleanData.linkedin || cleanData.output || cleanData.text || (cleanData.choices?.[0]?.message?.content);
+            const blog = cleanData.blog_post || cleanData.blog || cleanData.article || cleanData.content || (cleanData.choices?.[0]?.message?.content);
 
             setResults({
-                linkedin: cleanData.linkedin_post || cleanData.linkedin || "Pendiente de contenido...",
-                blog: cleanData.blog_post || cleanData.blog || "Pendiente de contenido...",
+                linkedin: linkedin || "ERROR: n8n respondió pero el post de LinkedIn no se encontró. Revisa el nodo 'Respond to Webhook' en n8n.",
+                blog: blog || "ERROR: n8n respondió pero el Blog no se encontró. Los campos deben llamarse 'linkedin_post' y 'blog_post'.",
             });
         } catch (error) {
             console.error("Error:", error);
