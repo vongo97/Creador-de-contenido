@@ -9,6 +9,7 @@ export default function Home() {
     const [context, setContext] = useState("");
     const [loading, setLoading] = useState(false);
     const [results, setResults] = useState<{ linkedin: string; blog: string } | null>(null);
+    const [rawResponse, setRawResponse] = useState<any>(null);
     const [copied, setCopied] = useState<string | null>(null);
 
     const handleGenerate = async () => {
@@ -24,8 +25,8 @@ export default function Home() {
             const data = await response.json();
             console.log("DATOS RECIBIDOS DE n8n:", data);
 
-            // n8n puede enviar arrays, objetos anidados o el objeto directo
             const cleanData = Array.isArray(data) ? data[0] : (data.body || data);
+            setRawResponse(cleanData);
 
             // Buscamos el contenido en múltiples campos posibles por si n8n los renombró
             const linkedin = cleanData.linkedin_post || cleanData.linkedin || cleanData.output || cleanData.text || (cleanData.choices?.[0]?.message?.content);
@@ -154,6 +155,16 @@ export default function Home() {
                         </motion.div>
                     )}
                 </AnimatePresence>
+
+                {/* Debug Section (Para ver qué manda n8n) */}
+                {rawResponse && (
+                    <div className="mt-12 p-4 rounded-xl bg-gray-900/50 border border-gray-800">
+                        <p className="text-xs text-gray-500 font-mono mb-2 uppercase tracking-widest">Rayos X: Datos Crudos de n8n</p>
+                        <pre className="text-[10px] text-gray-400 overflow-x-auto whitespace-pre-wrap font-mono">
+                            {JSON.stringify(rawResponse, null, 2)}
+                        </pre>
+                    </div>
+                )}
             </div>
         </main>
     );
