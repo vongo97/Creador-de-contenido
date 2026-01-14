@@ -15,8 +15,8 @@ export default function Home() {
         if (!idea) return;
         setLoading(true);
         try {
-            // Nota: Reemplaza esto con la URL real de tu Webhook de n8n o tu endpoint /api/generate
-            const response = await fetch("https://n8n.tu-instancia.com/webhook/content-creator", {
+            const n8nUrl = process.env.NEXT_PUBLIC_N8N_URL || "https://n8n.tu-instancia.com/webhook/content-creator";
+            const response = await fetch(n8nUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ idea, contexto: context }),
