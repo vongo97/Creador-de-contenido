@@ -22,9 +22,13 @@ export default function Home() {
                 body: JSON.stringify({ idea, contexto: context }),
             });
             const data = await response.json();
+
+            // n8n a menudo envía un array [ { ... } ], lo normalizamos
+            const cleanData = Array.isArray(data) ? data[0] : data;
+
             setResults({
-                linkedin: data.linkedin_post,
-                blog: data.blog_post,
+                linkedin: cleanData.linkedin_post || cleanData.linkedin || "Pendiente de contenido...",
+                blog: cleanData.blog_post || cleanData.blog || "Pendiente de contenido...",
             });
         } catch (error) {
             console.error("Error:", error);
